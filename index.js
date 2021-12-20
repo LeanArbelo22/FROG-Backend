@@ -7,10 +7,11 @@ const app = express();
 dbConnection();
 
 // MIDDLEWARE conexion con archivos estaticos y json
-//app.use(express.static('public')); // funciona como res.sendFile
+app.use(express.static('public')); // funciona como res.sendFile
 app.use(express.json());
 // RUTAS REALES
-app.use('/api/auth', require('./routes/auth'))
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/events', require('./routes/events'));
 
 // RUTA DE PRUEBA
 // GET

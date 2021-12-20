@@ -5,7 +5,7 @@ const { validationResult } = require('express-validator');
 de la ruta cuando me hacen una peticion (req).
 Cuando el middle es propio es obligatorio usar el param next al finalizar la funcion, de lo contrario la app queda colgada */
 
-const validateNewUser = (req, res = response, next) => {
+const validateUser = (req, res = response, next) => {
 
     const errores = validationResult(req);
     console.log(errores);
@@ -25,4 +25,4 @@ const validateNewUser = (req, res = response, next) => {
     next(); // funcion de express, sin esto en caso de no recibir errores la app quedaria colgada ya que la funcion validar recibe los mismos parametros que el controlador
 }
 
-module.exports = { validateNewUser };
+module.exports = { validateUser };
