@@ -1,5 +1,5 @@
 // JSON WEB TOKEN
-const res = require('express/lib/response');
+//const res = require('express/lib/response');
 const jwt = require('jsonwebtoken');
 
 const generarToken = (uid, name) =>{
@@ -13,14 +13,12 @@ const generarToken = (uid, name) =>{
         }, (err, token) =>{
             if(err){
                 console.log(err);
-                res.json('Error generando token');
+                reject('Error generando token');
             }else{
                 resolve(token);
             }
         });
-
     });
-
 }
 
 module.exports = {

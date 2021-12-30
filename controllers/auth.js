@@ -6,24 +6,15 @@ const { generarToken } = require('../helpers/JWT')
 // encriptacion de password
 const bcrypt = require('bcryptjs')
 
-/* Response desestructurado 
-const { response } = require('express/lib/response')
-si uso esto, en vez de usar express.response se utiliza solo response
-*/
-
 // para .post('/api/auth/new-user')
 const crearUsuario = async (req, res = express.response) => {
-    // express.response es para que al escribir res. muestre sugerencias especificas
-    // console.log(req.body);
 
-    // req.body desestructurado
-    const { name, email, password } = req.body;
+    const { name, email, password, frogcard } = req.body
 
     try {
         
         // validando si existen ciertos datos en la bd
         let usuario = await Usuario.findOne({email});
-        //console.log(usuario); null
         
         if(usuario){
             return res.status(500).json({
@@ -35,42 +26,30 @@ const crearUsuario = async (req, res = express.response) => {
         usuario = new Usuario(req.body);
 
         // encriptacion
-        salt = bcrypt.genSaltSync(/* 10 por defecto */);
+        salt = bcrypt.genSaltSync();
         usuario.password = bcrypt.hashSync(password, salt);
+
+        // guardar el usuario
+        await usuario.save();
 
         // generamos el token de acceso a la aplicacion
         const token = await generarToken(usuario.id, usuario.name);
         console.log(token);
 
-        // guardar el usuario
-        await usuario.save();
-
         res.status(201).json({
             message: 'Usuario creado correctamente',
-            //user: req.body, puedo llamar a sus propiedades (body.name por ej)
-            //desestructurado seria simplemente usar name, email y password
-            user: { name, email, password },
+            user: { name, email, password, frogcard },
+            uid: usuario.id,
             token
         }
         );
+
     } catch (error) { // error en la base de datos
         res.status(500).json({
             "message": "El usuario no pudo crearse",
             "error": error.keyValue
         })
     }
-
-    /* original en middlewares/validate
-    const errores = validationResult(req);
-    if (errores.isEmpty()) {
-        return res.status(201).json({
-            message: 'Usuario creado correctamente',
-            //user: req.body, puedo llamar a sus propiedades (body.name por ej)
-            //desestructurado seria simplemente usar name, email y password
-            user: {name, email, password}
-        });
-      }
-      res.status(400).json({ error: errores.array() }); */
 }
 
 // para .post('/api/auth/login')
@@ -102,9 +81,11 @@ const userLogin = async (req, res) => {
 
         res.status(200).json({
             message: 'Bienvenido',
-            user: { email }
+            user: { email },
+            token
         });
-    } catch (error) { // cuando hay un error en la busqueda de la base de datos se muestra este
+
+    } catch (error) { // error en la busqueda de la base de datos
         res.status(500).json({
             "message": "Error al intentar verificar los datos",
         })
@@ -125,19 +106,6 @@ const renovarToken = async (req, res = express.response) => {
         token
     });
 
-/*     const { password } = req.body;
-
-    const errores = validationResult(req);
-    console.log(errores);
-
-    //otra forma de hacerlo
-    if (!errores.isEmpty()) {
-        return res.status(400).json({ error: errores.array() });
-    }
-    res.json({
-        message: 'Renovacion de permisos con Token realizada',
-        user: { password }
-    }) */
 }
 
 

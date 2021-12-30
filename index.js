@@ -1,37 +1,38 @@
 // CONFIGURACION
 const express = require('express');
-const { dbConnection } = require('./database/config');
 require('dotenv').config();
+const { dbConnection } = require('./database/config');
+const cors = require('cors');
+const compression = require('compression');
+const Usuario = require('./models/Usuario');
+
 const app = express();
 
+// conexion a 
 dbConnection();
 
-// MIDDLEWARE conexion con archivos estaticos y json
-app.use(express.static('public')); // funciona como res.sendFile
+app.use(compression());
+app.use(cors());
 app.use(express.json());
+
 // RUTAS REALES
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/events', require('./routes/events'));
+
+// FRONTEND
+/* app.use('/', express.static(path.join(__dirname, '//'))); */
 
 // RUTA DE PRUEBA
 // GET
-app.get('/', (req, res) => {
-    //res.sendFile(__dirname + '/pubic/index.html');
-    console.log('Han realizado una peticion a home');
-    //res.send('Peticion recibida correctamente')
-    res.json({
-        message: 'Bienvenido a HOME. Peticion recibida correctamente'
-    })
+app.get('/api/auth/users', async (req, res) => {
+    const users = await Usuario.find().lean().exec();
+    res.status(200).send({users})
+    /* res.json({
+        message: "Bienvenido",
+        description: "Accediendo a la api con metodo get"
+    }) */
 })
 
-// CALLBACK
 // usando .env
 app.listen(process.env.PORT, () => {
     console.log(`Servidor corriendo en el puerto ${process.env.PORT}`);
 })
-
-/* sin usar .env 
-const Port = 8080;
-app.listen(Port, () => {
-    console.log(`Servidor corriendo en el puerto ${Port}`);
-}) */
